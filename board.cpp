@@ -8,7 +8,7 @@ Board::Board():row(8),col(8),grid(row,vector<int>(col,0)){
 vector<vector<int>> Board::get_grid()const{
     return grid;
 }
-bool Board::check_move(const Move &move,int color)const{
+bool Board::check_move(const Move &move,const int &color)const{
     if(grid[move.begin.x][move.begin.y]!=color)return 0;
     if(!is_in_board(move.begin)||!is_in_board(move.end)||!is_in_board(move.obstacle))return 0;
     if(!can_reach(move.begin,move.end)||!can_reach(move.end,move.obstacle))return 0;
@@ -62,4 +62,40 @@ bool Board::can_reach(const Position &begin,const Position &end)const{
     }
     else return 0;
     return 1;
+}
+void Board::make_move(const Move &move,const int &color){
+    del(move.begin);
+    add(move.end,color);
+    add(move.obstacle,2);
+}
+
+bool Board::is_game_over(const int &next_color)const{
+    //vector<Position> chess_pieces;
+    for(int i=0;i<row;i++){
+        for(int j=0;j<col;j++){
+            if(grid[i][j]==next_color)if(can_move({i,j}))return 0;
+        }
+    }
+    return 1;
+}
+bool Board::can_move(const Position &pos)const{
+    static vector<int> way_x={1,-1,0,0,1,-1,1,-1};
+    static vector<int> way_y={0,0,1,-1,1,-1,-1,1};
+    for(int id=0;id<=7;id++){
+        int nx=pos.x+way_x[id],ny=pos.y+way_y[id];
+        if(!is_in_board({nx,ny}))continue;
+        if(!grid[nx][ny])return 1;
+        
+    }
+    return 0;
+}
+void Board::initialize(){
+    add({0,2},1);
+    add({2,0},1);
+    add({5,0},1);
+    add({7,2},1);
+    add({0,5},-1);
+    add({2,7},-1);
+    add({7,5},-1);
+    add({5,7},-1);
 }

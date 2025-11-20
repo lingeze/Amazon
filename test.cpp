@@ -13,9 +13,37 @@ void move_test(){
 }
 void board_test(){
     Board bd;
+    bd.initialize();
+    bd.print_board();
+    bd.make_move({{2,0},{2,2},{3,3}},1);
+    bd.print_board();
+    cout<<bd.is_game_over(1)<<endl;
+    bd.add({0,1},2);
+    bd.add({0,3},2);
+    bd.add({1,2},2);
+    bd.add({2,1},2);
+    bd.add({2,3},2);
+    bd.add({3,2},2);
+    bd.add({4,0},2);
+    bd.add({5,1},2);
+    bd.add({6,0},2);
+    bd.add({7,1},2);
+    bd.add({7,3},2);
+    bd.add({6,2},2);
+    bd.add({1,1},2);
+    bd.add({1,3},2);
+    bd.add({3,1},2);
+    bd.add({4,1},2);
+    bd.add({6,1},2);
+    bd.add({6,3},2);
+    bd.print_board();
+    cout<<bd.is_game_over(1)<<endl;
+    cout<<bd.is_game_over(-1)<<endl;
+    bd.del({6,2});
+    cout<<bd.is_game_over(1)<<endl;
     bd.print_board();
     //vector<vector<int>> grid=bd.get_grid();
-    bd.add({1,1},1);
+    /*bd.add({1,1},1);
     bd.print_board();
     bd.add({3,3},1);
     bd.print_board();
@@ -35,7 +63,8 @@ void board_test(){
     bd.del({1,1});
     bd.print_board();
     bd.del({1,7});
-    bd.print_board();
+    bd.print_board();*/
+
 
 }
 int main(){
