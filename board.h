@@ -17,6 +17,7 @@ class Board{
     private:
     int row,col;
     vector<vector<int>> grid;
+    char transform(int i,int j)const;
     void add(const Position &pos,const int &color);
     void del(const Position &pos);
     bool can_move(const Position &pos)const;

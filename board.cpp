@@ -9,8 +9,8 @@ vector<vector<int>> Board::get_grid()const{
     return grid;
 }
 bool Board::check_move(const Move &move,const int &color)const{
-    if(grid[move.begin.x][move.begin.y]!=color)return 0;
     if(!is_in_board(move.begin)||!is_in_board(move.end)||!is_in_board(move.obstacle))return 0;
+    if(grid[move.begin.x][move.begin.y]!=color)return 0;
     if(!can_reach(move.begin,move.end)||!can_reach(move.end,move.obstacle))return 0;
     return 1;
 }
@@ -20,16 +20,33 @@ void Board::add(const Position &pos,const int &color){
 void Board::del(const Position &pos){
     grid[pos.x][pos.y]=0;
 }
+char Board::transform(int i,int j)const{
+    if(grid[i][j]==0)return '.';
+    else if(grid[i][j]==1)return 'a';
+    else if(grid[i][j]==-1)return 'b';
+    else if(grid[i][j]==2)return '#';
+    return ' ';
+}
 void Board::print_board()const{
+    std::cout<<"    ";
+    for(int i=0;i<col;i++){
+        std::cout<<"  "<<i<<" ";
+    }
+    std::cout<<std::endl;
     for(int i=0;i<row;i++){
+        std::cout<<"    ";
+        std::cout<<"+---+---+---+---+---+---+---+---+"<<std::endl;
+        std::cout<<"  "<<i<<" ";
         for(int j=0;j<col;j++){
-            if(grid[i][j]==0)std::cout<<".";
-            else if(grid[i][j]==1)std::cout<<"a";
-            else if(grid[i][j]==-1)std::cout<<"b";
-            else if(grid[i][j]==2)std::cout<<"#";
+            std::cout<<"|";
+            std::cout<<" ";
+            std::cout<<transform(i,j);
+            std::cout<<" ";
         }
+        std::cout<<"|";
         std::cout<<std::endl;
     }
+    std::cout<<"    +---+---+---+---+---+---+---+---+"<<std::endl;
     std::cout<<std::endl;
 }
 bool Board::is_in_board(const Position &pos)const{
