@@ -1,6 +1,7 @@
 #include<iostream>
 #include "move.h"
 #include "board.h"
+#include "AIplayer.h"
 using namespace std;
 void move_test(){
     Position start(1,0);
@@ -13,9 +14,22 @@ void move_test(){
 }
 void board_test(){
     Board bd;
+    AIplayer AI(-1);
     bd.initialize();
     bd.print_board();
-    bd.make_move({{2,0},{2,2},{3,3}},1);
+    //bd.make_move({{2,0},{2,2},{3,3}},1);
+    bd.print_board();
+    vector<Move> move=bd.get_all_psb_move(-1);
+     for(auto mv:move){
+        if(mv.begin.y==2)
+        cout<<mv.begin.x<<" "<<mv.begin.y<<"to"<<mv.end.x<<" "<<mv.end.y<<"and shoot"<<
+        mv.obstacle.x<<" "<<mv.obstacle.y<<endl;
+    } 
+    cout<<move.size()<<endl;
+    Move nxt_move=AI.get_move(bd);
+    cout<<nxt_move.begin.x<<" "<<nxt_move.begin.y<<" to "<<nxt_move.end.x<<" "<<nxt_move.end.y<<" and shoot "<<
+        nxt_move.obstacle.x<<" "<<nxt_move.obstacle.y<<endl;
+    bd.make_move(nxt_move,-1);
     bd.print_board();
     /*cout<<bd.is_game_over(1)<<endl;
     bd.add({0,1},2);
@@ -68,6 +82,24 @@ void board_test(){
 
 }
 int main(){
-    board_test();    
+    //board_test();    
     return 0;
 }
+/*   0   1   2   3   4   5   6   7
+    +---+---+---+---+---+---+---+---+
+  0 | . | . | a | . | . | a | . | . |
+    +---+---+---+---+---+---+---+---+
+  1 | . | . | . | . | . | . | . | . |
+    +---+---+---+---+---+---+---+---+
+  2 | a | . | . | . | . | . | . | a |
+    +---+---+---+---+---+---+---+---+
+  3 | . | . | . | . | . | . | . | . |
+    +---+---+---+---+---+---+---+---+
+  4 | . | . | . | . | . | . | . | . |
+    +---+---+---+---+---+---+---+---+
+  5 | b | . | . | . | . | . | . | b |
+    +---+---+---+---+---+---+---+---+
+  6 | . | . | . | . | . | . | . | . |
+    +---+---+---+---+---+---+---+---+
+  7 | . | . | b | . | . | b | . | . |
+    +---+---+---+---+---+---+---+---+ */

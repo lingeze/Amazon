@@ -109,10 +109,52 @@ bool Board::can_move(const Position &pos)const{
 void Board::initialize(){
     add({0,2},1);
     add({2,0},1);
-    add({5,0},1);
-    add({7,2},1);
-    add({0,5},-1);
-    add({2,7},-1);
-    add({7,5},-1);
+    add({0,5},1);
+    add({2,7},1);
+    add({5,0},-1);
+    add({7,2},-1);
     add({5,7},-1);
+    add({7,5},-1);
+}
+vector<Position> Board::get_start_position(int color)const{
+    vector<Position> start;
+    for(int i=0;i<=7;i++){
+        for(int j=0;j<=7;j++){
+            if(grid[i][j]==color)start.push_back({i,j});
+        }
+    }
+    return start;
+}
+vector<Move> Board::get_all_psb_move(int color)const{
+    vector<Position> start=get_start_position(color);
+    static vector<int> way_x={1,-1,0,0,1,-1,1,-1};
+    static vector<int> way_y={0,0,1,-1,1,-1,-1,1};
+    vector<Position> end;
+    vector<Move> psb_move;
+    for(const auto &st:start){
+        end.clear();
+        for(int way_id=0;way_id<=7;way_id++){
+            for(int nx=st.x+way_x[way_id],ny=st.y+way_y[way_id];
+                nx<=7&&ny<=7&&nx>=0&&ny>=0;
+                nx+=way_x[way_id],ny+=way_y[way_id]
+            ){
+                if(grid[nx][ny])break;
+                end.push_back({nx,ny});
+            }
+        }
+        for(const auto &ed:end){
+            for(int way_id=0;way_id<=7;way_id++){
+                for(int nx=ed.x+way_x[way_id],ny=ed.y+way_y[way_id];
+                    nx<=7&&ny<=7&&nx>=0&&ny>=0;
+                    nx+=way_x[way_id],ny+=way_y[way_id]
+                ){
+                    if(grid[nx][ny]&&grid[nx][ny]!=color)break;
+                    if(grid[nx][ny]==color&&(nx!=st.x||ny!=st.y))break;
+                    psb_move.push_back({st,ed,{nx,ny}});
+                }
+            }
+        } 
+        //std::cout<<end.size()<<std::endl;
+    }
+    return psb_move;
 }
