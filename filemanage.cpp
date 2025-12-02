@@ -21,6 +21,7 @@ bool Filemanage::savefile(const Board &gameboard,const int &current_player,const
 }
 bool Filemanage::loadfile(Board &gameboard,int &current_player,const int &savenumber){
     std::string filename="SAVE_"+std::to_string(savenumber);
+    //std::cout<<filename<<std::endl;
     std::ifstream file(filename);
     if(!file.is_open()){
         std::cout<<"[!]存档文件不存在！"<<std::endl;
@@ -37,10 +38,10 @@ bool Filemanage::loadfile(Board &gameboard,int &current_player,const int &savenu
     file.close();
     return 1;
 }
-void Filemanage::list_saves(){
+bool Filemanage::list_saves(){
     std::cout<<"已有的存档："<<std::endl;
     bool is_exist=0;
-    for(int id=1;id<=10;id++){
+    for(int id=1;id<=9;id++){
         std::string filename="SAVE_"+std::to_string(id);
         std::ifstream file(filename);
         if(file.is_open()){
@@ -49,5 +50,6 @@ void Filemanage::list_saves(){
         }
         file.close();
     }
-    if(!is_exist)std::cout<<"无"<<std::endl;
+    if(!is_exist){std::cout<<"无"<<std::endl;return 0;}
+    return 1;
 }

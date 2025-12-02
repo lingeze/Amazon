@@ -6,9 +6,9 @@ AIplayer::AIplayer(int color):player_color(color),gen(std::random_device()()){
 }
 Move AIplayer::get_move(const Board &now_board)const{
     Move ret=rand_strategy(now_board);
-    std::cout<<"起点:"<<ret.begin.x<<" "<<ret.begin.y<<std::endl;
-    std::cout<<"终点:"<<ret.end.x<<" "<<ret.end.y<<std::endl;
-    std::cout<<"障碍物:"<<ret.obstacle.x<<" "<<ret.obstacle.y<<std::endl;
+    std::cout<<"起点:"<<ret.begin.y<<" "<<ret.begin.x<<std::endl;
+    std::cout<<"终点:"<<ret.end.y<<" "<<ret.end.x<<std::endl;
+    std::cout<<"障碍物:"<<ret.obstacle.y<<" "<<ret.obstacle.x<<std::endl;
     return ret;
 }
 Move AIplayer::rand_strategy(const Board &now_board)const{

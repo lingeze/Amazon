@@ -8,6 +8,9 @@ Board::Board():row(8),col(8),grid(row,vector<int>(col,0)){
 vector<vector<int>> Board::get_grid()const{
     return grid;
 }
+int Board::get_color(const int &pos_x,const int &pos_y)const{
+    return grid[pos_x][pos_y];
+}
 bool Board::check_move(const Move &move,const int &color)const{
     if(!is_in_board(move.begin)||!is_in_board(move.end)||!is_in_board(move.obstacle))return 0;
     if(grid[move.begin.x][move.begin.y]!=color)return 0;
