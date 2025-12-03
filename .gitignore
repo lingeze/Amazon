@@ -5,5 +5,4 @@ build/
 *.exe
 *.out
 SAVE_*
-
 .vscode/
