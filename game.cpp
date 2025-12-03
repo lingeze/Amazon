@@ -3,6 +3,40 @@
 #include "filemanage.h"
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <thread>
+#include <windows.h> // 必须包含这个头文件来使用 Windows API
+
+/**
+ * 在 Windows 终端上启用 ANSI 转义码处理功能。
+ * 这是让 clear_screen() 生效的关键。
+ * 如果成功启用，返回 true；否则返回 false。
+ */
+bool enable_virtual_terminal_processing() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+
+    DWORD dwMode = 0;
+    if (!GetConsoleMode(hOut, &dwMode)) {
+        return false;
+    }
+
+    // 添加 ENABLE_VIRTUAL_TERMINAL_PROCESSING 标志
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(hOut, dwMode)) {
+        return false;
+    }
+
+    return true;
+}
+void clear_screen() {
+    // \033[2J: 清除整个屏幕
+    // \033[H:  将光标移动到左上角 (Home)
+    enable_virtual_terminal_processing();
+    std::cout << "\033[2J\033[H"<<std::flush;
+}
 void play_a_game(Board gameboard,int current_player,bool is_continue){
     //游戏进行
     AIplayer ai(-1);
@@ -13,11 +47,12 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
     std::cout<<"暂停: p"<<std::endl;
     std::cout<<"结束: e"<<std::endl;
     std::cout<<"输入回车键开始游戏"<<std::endl;
-    std::cin.get();std::cin.get();
+    std::cin.get();
     std::cout<<"游戏开始！"<<std::endl;
     while(1){
         Move now_move;
-        system("cls");
+        //system("cls");
+        //clear_screen();
         gameboard.print_board();
         //std::cout<<"testsdfsdfsadfds"<<std::endl;
         //判断是否结束
@@ -28,6 +63,7 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
             else std::cout<<"您赢了！！！"<<std::endl;
             return;
         }
+        Filemanage::savefile(gameboard,current_player,0);
         bool input_l=0;
         //处理用户指令
         if(current_player==1){
@@ -70,21 +106,21 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
                         std::cout<<"您没有存档可以读取。"<<std::endl;
                         continue;
                     }
-                    std::cout<<"请输入您要读取的存档编号(1~9)：";
+                    std::cout<<"请输入您要读取的存档编号(0~9)：";
                     std::string input;std::getline(std::cin,input);
-                    while(input.size()>1||input[0]<'1'||input[0]>'9'){
+                    while(input.size()>1||input[0]<'0'||input[0]>'9'){
                         std::cout<<"您输入的格式有误。请重新输入。"<<std::endl;
-                        std::cout<<"请输入您要读取的存档编号(1~9)：";
+                        std::cout<<"请输入您要读取的存档编号(0~9)：";
                         std::getline(std::cin,input);
                     }
                     int id=input[0]-'0';
                     while(!Filemanage::loadfile(gameboard,current_player,id)){
                             std::cout<<"请重新输入"<<std::endl;
-                            std::cout<<"请输入您要读取的存档编号(1~9)：";
+                            std::cout<<"请输入您要读取的存档编号(0~9)：";
                             std::getline(std::cin,input);
-                        while(input.size()>1||input[0]<'1'||input[0]>'9'){
+                        while(input.size()>1||input[0]<'0'||input[0]>'9'){
                             std::cout<<"您输入的格式有误。请重新输入"<<std::endl;
-                            std::cout<<"请输入您要读取的存档编号(1~9)：";
+                            std::cout<<"请输入您要读取的存档编号(0~9)：";
                             std::getline(std::cin,input);
                         }
                     }
@@ -98,7 +134,7 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
                     std::cout<<"               游戏已暂停。              "<<std::endl;
                     std::cout<<"========================================"<<std::endl;
                     std::cout<<"按下回车键以继续游戏。"<<std::endl;
-                    std::cin.get();std::cin.get();
+                    std::cin.get();
                 }
                 //结束
                 else if(user_input=="e"){
@@ -117,6 +153,7 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
         }
         else {
             std::cout<<"ai正在思考······"<<std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
             now_move=ai.get_move(gameboard);
         }
         if(input_l)continue;
@@ -153,13 +190,13 @@ void gameloop(){
             std::cout<<"请选择您希望的落子顺序。"<<std::endl;
             std::cout<<"A: 您先手"<<std::endl;
             std::cout<<"B: AI先手"<<std::endl;
-            std::cin>>select_color;
+            std::getline(std::cin,select_color);
             while(select_color!="A"&&select_color!="B"){
                 std::cout<<"您的输入有误，请重新输入。"<<std::endl;
                 std::cout<<"请选择您希望的落子顺序。"<<std::endl;
                 std::cout<<"A: 您先手"<<std::endl;
                 std::cout<<"B: AI先手"<<std::endl;
-                std::cin>>select_color;
+                std::getline(std::cin,select_color);
             }
             if(select_color=="A")current_player=1;
             else current_player=-1;
@@ -171,9 +208,9 @@ void gameloop(){
                 std::cout<<"您没有存档可以读取。"<<std::endl;
                 continue;
             }
-            std::cout<<"请输入您要读取的存档编号(1~9)：";
+            std::cout<<"请输入您要读取的存档编号(0~9)：";
             std::string input;std::getline(std::cin,input);
-            while(input.size()>1||input[0]<'1'||input[0]>'9'){
+            while(input.size()>1||input[0]<'0'||input[0]>'9'){
                 std::cout<<"您输入的格式有误。请重新输入。"<<std::endl;
                 std::cout<<"请输入您要读取的存档编号(1~9)：";
                 std::getline(std::cin,input);
@@ -181,11 +218,11 @@ void gameloop(){
             int id=input[0]-'0';
             while(!Filemanage::loadfile(gameboard,current_player,id)){
                     std::cout<<"请重新输入"<<std::endl;
-                    std::cout<<"请输入您要读取的存档编号(1~9)：";
+                    std::cout<<"请输入您要读取的存档编号(0~9)：";
                     std::getline(std::cin,input);
-                while(input.size()>1||input[0]<'1'||input[0]>'9'){
+                while(input.size()>1||input[0]<'0'||input[0]>'9'){
                     std::cout<<"您输入的格式有误。请重新输入"<<std::endl;
-                    std::cout<<"请输入您要读取的存档编号(1~9)：";
+                    std::cout<<"请输入您要读取的存档编号(0~9)：";
                     std::getline(std::cin,input);
                 }
             }

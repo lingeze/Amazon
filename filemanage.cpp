@@ -41,11 +41,13 @@ bool Filemanage::loadfile(Board &gameboard,int &current_player,const int &savenu
 bool Filemanage::list_saves(){
     std::cout<<"已有的存档："<<std::endl;
     bool is_exist=0;
-    for(int id=1;id<=9;id++){
+    for(int id=0;id<=9;id++){
         std::string filename="SAVE_"+std::to_string(id);
         std::ifstream file(filename);
         if(file.is_open()){
-            std::cout<<filename<<std::endl;
+            std::cout<<filename;
+            if(id==0)std::cout<<"(自动保存)";
+            std::cout<<std::endl;
             is_exist=1;
         }
         file.close();
