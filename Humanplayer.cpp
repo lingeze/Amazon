@@ -37,7 +37,10 @@ Move Humanplayer::get_move(std::string user_input,const Board &now_board)const{
     }
     if(!now_board.check_move(ret_move,player_color)){
         throw std::runtime_error("输入的行动不符合规则，请重新输入。");
-    }
+    }    
+    //std::cout<<"起点:"<<ret_move.begin.y<<" "<<ret_move.begin.x<<std::endl;
+    //std::cout<<"终点:"<<ret_move.end.y<<" "<<ret_move.end.x<<std::endl;
+    //std::cout<<"障碍物:"<<ret_move.obstacle.y<<" "<<ret_move.obstacle.x<<std::endl;
     return ret_move;
 }
 Humanplayer::~Humanplayer(){

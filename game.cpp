@@ -51,9 +51,8 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
     std::cout<<"游戏开始！"<<std::endl;
     while(1){
         Move now_move;
-        //system("cls");
-        //clear_screen();
-        gameboard.print_board();
+        
+        gameboard.print_board(); 
         //std::cout<<"testsdfsdfsadfds"<<std::endl;
         //判断是否结束
         if(gameboard.is_game_over(current_player)==1){
@@ -144,6 +143,10 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
                 else {
                     try{
                         now_move=human.get_move(user_input,gameboard);
+                        clear_screen();
+                        std::cout<<"起点:"<<now_move.begin.y<<" "<<now_move.begin.x<<std::endl;
+                        std::cout<<"终点:"<<now_move.end.y<<" "<<now_move.end.x<<std::endl;
+                        std::cout<<"障碍物:"<<now_move.obstacle.y<<" "<<now_move.obstacle.x<<std::endl;
                         is_input_valid=1;
                     }catch(const std::exception &e){
                         std::cout<<"[!]您的输入有误："<<e.what()<<std::endl;
@@ -153,7 +156,8 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
         }
         else {
             std::cout<<"ai正在思考······"<<std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            clear_screen();
             now_move=ai.get_move(gameboard);
         }
         if(input_l)continue;
@@ -234,6 +238,7 @@ void gameloop(){
     }
 }
 int main(){
+    SetConsoleOutputCP(CP_UTF8); 
     gameloop();
     return 0;
 }
