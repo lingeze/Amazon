@@ -1,0 +1,5 @@
+C:/code/Amazon/CMakeFiles/core_logic.dir
+C:/code/Amazon/CMakeFiles/my_bot.dir
+C:/code/Amazon/CMakeFiles/my_app.dir
+C:/code/Amazon/CMakeFiles/ALL_BUILD.dir
+C:/code/Amazon/CMakeFiles/ZERO_CHECK.dir

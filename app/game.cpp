@@ -37,10 +37,10 @@ void clear_screen() {
     enable_virtual_terminal_processing();
     std::cout << "\033[2J\033[H"<<std::flush;
 }
-void play_a_game(Board gameboard,int current_player,bool is_continue){
+void play_a_game(Board gameboard,int human_color,int current_player,bool is_continue){
     //游戏进行
-    AIplayer ai(-1);
-    Humanplayer human(1);
+    AIplayer ai(-human_color);
+    Humanplayer human(human_color);
     std::cout<<"若想进行存盘、读盘、暂停、结束等操作，请您在输入坐标前输入相应的指令："<<std::endl;
     std::cout<<"存盘: s"<<std::endl;
     std::cout<<"读盘: l"<<std::endl;
@@ -56,16 +56,16 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
         //std::cout<<"testsdfsdfsadfds"<<std::endl;
         //判断是否结束
         if(gameboard.is_game_over(current_player)==1){
-            if(current_player==1){
+            if(current_player==human_color){
                 std::cout<<"您输了！"<<std::endl;
             }
             else std::cout<<"您赢了！！！"<<std::endl;
             return;
         }
-        Filemanage::savefile(gameboard,current_player,0);
+        Filemanage::savefile(gameboard,human_color,current_player,0);
         bool input_l=0;
         //处理用户指令
-        if(current_player==1){
+        if(current_player==human_color){
             bool is_input_valid=0;
             while(!is_input_valid){
                 std::string user_input;
@@ -85,7 +85,7 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
                         std::getline(std::cin,input);
                     }
                     int id=input[0]-'0';
-                    while(!Filemanage::savefile(gameboard,current_player,id)){
+                    while(!Filemanage::savefile(gameboard,human_color,current_player,id)){
                         std::cout<<"请重新输入"<<std::endl;
                         std::cout<<"请输入您要保存的存档位置(1~9)：";
                         std::getline(std::cin,input);
@@ -113,7 +113,7 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
                         std::getline(std::cin,input);
                     }
                     int id=input[0]-'0';
-                    while(!Filemanage::loadfile(gameboard,current_player,id)){
+                    while(!Filemanage::loadfile(gameboard,human_color,current_player,id)){
                             std::cout<<"请重新输入"<<std::endl;
                             std::cout<<"请输入您要读取的存档编号(0~9)：";
                             std::getline(std::cin,input);
@@ -155,10 +155,12 @@ void play_a_game(Board gameboard,int current_player,bool is_continue){
             }
         }
         else {
+            ai.start_time_reset();
             std::cout<<"ai正在思考······"<<std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(2));
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
             clear_screen();
-            now_move=ai.get_move(gameboard);
+            now_move=ai.get_move(gameboard,current_player);
+            now_move.printmove();
         }
         if(input_l)continue;
         gameboard.make_move(now_move,current_player);
@@ -171,6 +173,7 @@ void gameloop(){
         //选择界面
         Board gameboard;
         bool is_continue=0;
+        int human_color=1;
         int current_player=1;
         std::string input;
         std::cout<<"                         开始菜单                          "<<std::endl;
@@ -202,8 +205,9 @@ void gameloop(){
                 std::cout<<"B: AI先手"<<std::endl;
                 std::getline(std::cin,select_color);
             }
-            if(select_color=="A")current_player=1;
-            else current_player=-1;
+            if(select_color=="A")human_color=1;
+            else human_color=-1;
+            current_player=1;
         }
         if(input=="B"){
             is_continue=1;
@@ -220,7 +224,7 @@ void gameloop(){
                 std::getline(std::cin,input);
             }
             int id=input[0]-'0';
-            while(!Filemanage::loadfile(gameboard,current_player,id)){
+            while(!Filemanage::loadfile(gameboard,human_color,current_player,id)){
                     std::cout<<"请重新输入"<<std::endl;
                     std::cout<<"请输入您要读取的存档编号(0~9)：";
                     std::getline(std::cin,input);
@@ -234,7 +238,7 @@ void gameloop(){
         if(input=="C"){
             return;
         }
-        play_a_game(gameboard,current_player,is_continue);
+        play_a_game(gameboard,human_color,current_player,is_continue);
     }
 }
 int main(){
