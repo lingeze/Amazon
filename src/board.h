@@ -5,6 +5,8 @@ using std::vector;
 class Board{
     public:
     Board();
+    int get_rounds()const{return rounds;}
+    void set_rounds(int r){rounds=r;}
     vector<vector<int>> get_grid()const;
     int get_color(const int &pos_x,const int &pos_y)const;
     bool can_reach(const Position &begin,const Position &end)const;
@@ -17,21 +19,26 @@ class Board{
     void add(const Position &pos,const int &color);
     void del(const Position &pos);
     void initialize();
+    /*For AI*/
     vector<Position> get_start_position(int color)const;
     vector<Move> get_all_psb_move(int color)const;
-    double calc_board_score(const int &next_color)const;
-    //private:
+    double calc_board_score(const int &next_color,bool need_output)const;
+    /*For gui*/
+    bool is_valid_start(Position pos,int color)const;
+    vector<Position> reach_positions(Position pos)const;
+    private:
     int row,col;
+    bool can_move(const Position &pos)const;
+    double calc_f(double alpha)const;
+    /*For AI*/
+    int rounds;
     vector<vector<int>> N;
     void N_update(const Position &pos);
     void N_calculate(const Position &pos);
     vector<double> calc_alpha(const int &color)const;
-    double calc_f(double w,double alpha)const;
-    double calc_m()const;
     vector<double> pow_2;
     mutable vector<vector<int>> grid;
     char transform(int i,int j)const;
-    bool can_move(const Position &pos)const;
     double calc_pow(const int &num)const{
         if(num>pow_2.size())return 0; 
         return pow_2[num];

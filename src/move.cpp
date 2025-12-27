@@ -1,4 +1,4 @@
-#include "move.h"
+﻿#include "move.h"
 #include <iostream>
 Move::Move(){
 
@@ -12,4 +12,7 @@ void Move::printmove()const{
     std::cout<<"起点:"<<begin.y<<" "<<begin.x<<std::endl;
     std::cout<<"终点:"<<end.y<<" "<<end.x<<std::endl;
     std::cout<<"障碍物:"<<obstacle.y<<" "<<obstacle.x<<std::endl;
+}
+int Move::get_hash()const{
+    return begin.x + begin.y * 8 + end.x * 64 + end.y * 512 + obstacle.x * 4096 + obstacle.y * 32768;
 }

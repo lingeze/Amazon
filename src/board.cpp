@@ -1,15 +1,28 @@
-#include "board.h"
+﻿#include "board.h"
 #include <iostream>
 #include <cmath>
 #include <queue>
 using std::vector;
 const int INF=1000000000;
-const double K=0.2;
-const double W_INIT=44;
-const double value_t2=0.5;
-const double value_c1=0.25;
-const double value_c2=0.25;
-Board::Board():row(8),col(8),grid(row,vector<int>(col,0)),N(row,vector<int>(col,0)){
+const double K=0.1;
+const double value_t1_1=0.14;
+const double value_t1_2=0.30;
+const double value_t1_3=0.80;
+const double value_t2_1=0.37;
+const double value_t2_2=0.25;
+const double value_t2_3=0.10;
+const double value_c1_1=0.13;
+const double value_c1_2=0.20;
+const double value_c1_3=0.10;
+const double value_c2_1=0.13;
+const double value_c2_2=0.20;
+const double value_c2_3=0.05;
+const double value_m_1=0.20;
+const double value_m_2=0.05;
+const double value_m_3=0.0;
+const int state_1_end=17;
+const int state_2_end=40;
+Board::Board():row(8),col(8),grid(row,vector<int>(col,0)),N(row,vector<int>(col,0)),rounds(0){
     pow_initialize();
 }
 vector<vector<int>> Board::get_grid()const{
@@ -82,20 +95,36 @@ bool Board::can_reach(const Position &begin,const Position &end)const{
         }
     }
     else if(minx==maxx){
-        for(int i=miny;i<=maxy;i++){
-            //std::cout<<bgx<<" "<<i<<endl;
-            if(grid[minx][i]){/*std::cout<<bgx<<" "<<i<<std::endl;*/return 0;}
+        if(miny==begin.y){
+            for(int i=miny+1;i<=maxy;i++){
+                //std::cout<<bgx<<" "<<i<<endl;
+                if(grid[minx][i]){/*std::cout<<bgx<<" "<<i<<std::endl;*/return 0;}
+            }
+        }
+        else {
+            for(int i=miny;i<=maxy-1;i++){
+                //std::cout<<bgx<<" "<<i<<endl;
+                if(grid[minx][i]){/*std::cout<<bgx<<" "<<i<<std::endl;*/return 0;}
+            }
         }
     }
     else if(miny==maxy){
-        for(int i=minx;i<=maxx;i++){
-            if(grid[i][miny])return 0;
+        if(minx==begin.x){
+            for(int i=minx+1;i<=maxx;i++){
+                if(grid[i][miny])return 0;
+            }
         }
+        else {
+            for(int i=minx;i<=maxx-1;i++){
+                if(grid[i][miny])return 0;
+            }
+        }        
     }
     else return 0;
     return 1;
 }
 void Board::make_move(const Move &move,const int &color){
+    set_rounds(rounds+1);
     del(move.begin);
     add(move.end,color);
     add(move.obstacle,2);
@@ -104,6 +133,7 @@ void Board::make_move(const Move &move,const int &color){
     N_update(move.obstacle);
 }
 void Board::undo_move(const Move &move,const int &color){
+    set_rounds(rounds-1);
     del(move.end);
     del(move.obstacle);
     add(move.begin,color);
@@ -295,30 +325,90 @@ double Board::calc_w(const vector<vector<int>> &dist1,const vector<vector<int>> 
     double w=0;
     for(int i=0;i<row;i++){
         for(int j=0;j<col;j++){
+            if(dist1[i][j]==INF&&dist2[i][j]==INF)continue;
             w+=calc_pow(std::abs(dist1[i][j]-dist2[i][j]));
         }
     }
     return w;
 }
-double Board::calc_board_score(const int &next_color)const{
+void print_dist(const vector<vector<int>> &dist){
+    for(int i=0;i<dist.size();i++){
+        for(int j=0;j<dist[0].size();j++){
+            if(dist[i][j]==INF)std::cout<<"X ";
+            else std::cout<<dist[i][j]<<" ";
+        }
+        std::cout<<std::endl;
+    }
+}
+double Board::calc_board_score(const int &next_color,bool need_output)const{
+    //print_board();//test
     vector<vector<int>> min_queen_dist1=min_queen_dist_grid(1);
     vector<vector<int>> min_queen_dist2=min_queen_dist_grid(-1);
     vector<vector<int>> min_king_dist1=min_king_dist_grid(1);
     vector<vector<int>> min_king_dist2=min_king_dist_grid(-1);
-
-    double w=calc_w(min_queen_dist1,min_queen_dist2);
+    //test_begin
+    if(need_output){
+    std::cout<<"rounds: "<<rounds<<std::endl;
+    std::cout<<"Queen Dist 1:"<<std::endl;
+    print_dist(min_queen_dist1);
+    std::cout<<"Queen Dist 2:"<<std::endl;
+    print_dist(min_queen_dist2);
+    std::cout<<"King Dist 1:"<<std::endl;
+    print_dist(min_king_dist1);
+    std::cout<<"King Dist 2:"<<std::endl;
+    print_dist(min_king_dist2); 
+    }
+    //test_end
+    //double w=calc_w(min_queen_dist1,min_queen_dist2);
     double t1=calc_t(min_queen_dist1,min_queen_dist2,next_color);
     double t2=calc_t(min_king_dist1,min_king_dist2,next_color);
     double c1=calc_c1(min_queen_dist1,min_queen_dist2);
     double c2=calc_c2(min_king_dist1,min_king_dist2);
+    //test_begin
+    if(need_output){ 
+    std::cout<<"t1: "<<t1<<std::endl;
+    std::cout<<"t2: "<<t2<<std::endl;
+    std::cout<<"c1: "<<c1<<std::endl;
+    std::cout<<"c2: "<<c2<<std::endl;
+    }
+    //test_end
     vector<double> alpha1=calc_alpha(1);
     vector<double> alpha2=calc_alpha(-1);
-    w/=W_INIT;
+    //test_begin
+    if(need_output){
+    std::cout<<"N Grid: "<<std::endl;
+    for(int i=0;i<row;i++){
+        for(int j=0;j<col;j++){
+            std::cout<<N[i][j]<<" ";
+        }
+        std::cout<<std::endl;
+    } 
+    std::cout<<"Alpha 1: ";
+    for(int i=0;i<4;i++)std::cout<<alpha1[i]<<" ";
+    std::cout<<std::endl;
+    std::cout<<"Alpha 2: ";
+    for(int i=0;i<4;i++)std::cout<<alpha2[i]<<" ";
+    std::cout<<std::endl;
+    }
+    //test_end
     double m=0;
     for(int i=0;i<4;i++){
-        m+=calc_f(w,alpha2[i])-calc_f(w,alpha1[i]);
+        m+=calc_f(alpha2[i])-calc_f(alpha1[i]);
     }
-    double score=(t1+m)*(1-w)+t2*value_t2+c1*value_c1+c2*value_c2;
+    double score=0;
+    if(need_output){    
+        std::cout<<"m: "<<m<<std::endl;
+    }
+    if(rounds<=state_1_end){
+        score = t1*value_t1_1 + t2*value_t2_1 + c1*value_c1_1 + c2*value_c2_1 + m*value_m_1;
+    }
+    else if(rounds<=state_2_end){
+        score = t1*value_t1_2 + t2*value_t2_2 + c1*value_c1_2 + c2*value_c2_2 + m*value_m_2;
+    }
+    else{
+        score = t1*value_t1_3 + t2*value_t2_3 + c1*value_c1_3 + c2*value_c2_3 + m*value_m_3;
+    }
+    //std::cout<<"Score: "<<score<<std::endl;//test 
     return score;
 }
 void Board::N_update(const Position &pos){
@@ -366,7 +456,7 @@ vector<double> Board::calc_alpha(const int &color)const{
     }
     return alpha;
 }
-double Board::calc_f(double w,double alpha)const{
+double Board::calc_f(double alpha)const{
     // ALPHA_HIGH_THRESHOLD: 在此alpha值以上，我们认为棋子是安全的，没有机动性问题。
     constexpr double ALPHA_HIGH_THRESHOLD = 20.0;
     // ALPHA_LOW_THRESHOLD: 在此alpha值以下，我们认为棋子“几乎被困”，需要施加重罚。
@@ -375,10 +465,7 @@ double Board::calc_f(double w,double alpha)const{
     constexpr double BASE_PENALTY_MULTIPLIER = 5.0;
     // SUPER_PENALTY_FACTOR: 当棋子“完全被困”时，在基础惩罚上额外乘以的系数。
     constexpr double SUPER_PENALTY_FACTOR = 10.0; 
-    constexpr double ADJUCT_MULTIPLIER = 5.0; 
-    if (w <= 0.0) {
-        return 0.0;
-    }
+    constexpr double ADJUCT_MULTIPLIER = 20.0; 
     double g_alpha = 0.0;
     if (alpha >=ALPHA_HIGH_THRESHOLD) {
         g_alpha = 0.0;
@@ -395,8 +482,28 @@ double Board::calc_f(double w,double alpha)const{
         // (low - alpha) / low 是一个从 0 到 1 的插值因子，alpha越小，它越接近1。
         double super_penalty =BASE_PENALTY_MULTIPLIER * 
                             SUPER_PENALTY_FACTOR * 
-                               (ALPHA_LOW_THRESHOLD - std::max(0.0, alpha)) /ALPHA_LOW_THRESHOLD;
+                            (ALPHA_LOW_THRESHOLD - std::max(0.0, alpha)) *
+                            (ALPHA_LOW_THRESHOLD - std::max(0.0, alpha)) /ALPHA_LOW_THRESHOLD;
         g_alpha = base_penalty + super_penalty;
     }
-    return w*g_alpha*ADJUCT_MULTIPLIER;
+    return g_alpha/ADJUCT_MULTIPLIER;
+}
+
+bool Board::is_valid_start(Position pos,int color) const{
+    if(!is_in_board(pos))return 0;
+    return grid[pos.x][pos.y]==color;
+}
+
+vector<Position> Board::reach_positions(Position pos) const{
+    vector<Position> ret;
+    static vector<int> way_x={1,-1,0,0,1,-1,1,-1};
+    static vector<int> way_y={0,0,1,-1,1,-1,-1,1};
+    for(int id=0;id<=7;id++){
+        for(int nx=pos.x+way_x[id],ny=pos.y+way_y[id];;nx+=way_x[id],ny+=way_y[id]){
+            if(!is_in_board({nx,ny}))break;
+            if(grid[nx][ny])break;
+            ret.push_back({nx,ny});
+        }
+    }
+    return ret;
 }

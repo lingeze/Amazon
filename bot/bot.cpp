@@ -28,4 +28,6 @@ int main(){
     std::cout<<nxt_move.begin.y<<" "<<nxt_move.begin.x<<" ";
     std::cout<<nxt_move.end.y<<" "<<nxt_move.end.x<<" ";
     std::cout<<nxt_move.obstacle.y<<" "<<nxt_move.obstacle.x<<" ";
+    
+    return 0;
 }

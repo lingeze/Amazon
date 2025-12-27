@@ -9,7 +9,12 @@ class AIplayer{
         void start_time_reset(){
             start_time=std::chrono::steady_clock::now();
         }
+        void clear_history_table(){
+            history_table.assign(8*8*8*8*8*8,0);
+        }
     private:
+        //int history_table[8][8][8][8][8][8]; 
+        vector<int> history_table;
         int search_cnt=0;
         std::chrono::steady_clock::time_point start_time;
         bool stop_search=0;

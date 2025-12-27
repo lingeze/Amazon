@@ -155,6 +155,7 @@ void play_a_game(Board gameboard,int human_color,int current_player,bool is_cont
             }
         }
         else {
+            ai.clear_history_table();
             ai.start_time_reset();
             std::cout<<"ai正在思考······"<<std::endl;
             //std::this_thread::sleep_for(std::chrono::seconds(2));
