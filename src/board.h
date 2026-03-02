@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "move.h"
+#include <cstdint> 
 using std::vector;
 class Board{
     public:
@@ -23,7 +24,17 @@ class Board{
     vector<Position> get_start_position(int color)const;
     vector<Move> get_all_psb_move(int color)const;
     double calc_board_score(const int &next_color,bool need_output)const;
+    static void initialize_zobrist_keys();
+    uint64_t get_hash() const;
+    void calculate_full_hash();
     /*For gui*/
+    void clear(){
+        for(int i=0;i<row;i++){
+            for(int j=0;j<col;j++){
+                del({i,j});
+            }
+        }
+    }
     bool is_valid_start(Position pos,int color)const;
     vector<Position> reach_positions(Position pos)const;
     private:
@@ -36,14 +47,15 @@ class Board{
     void N_update(const Position &pos);
     void N_calculate(const Position &pos);
     vector<double> calc_alpha(const int &color)const;
-    vector<double> pow_2;
+    static vector<double> pow_2;
     mutable vector<vector<int>> grid;
     char transform(int i,int j)const;
     double calc_pow(const int &num)const{
         if(num>pow_2.size())return 0; 
         return pow_2[num];
     }
-    void pow_initialize(){
+    static void pow_initialize(){
+        if(pow_2.size()>0)return;
         pow_2.resize(40,0);pow_2[0]=1;
         for(int i=1;i<39;i++){
             pow_2[i]=pow_2[i-1]/2;
@@ -57,4 +69,7 @@ class Board{
     double calc_t(const vector<vector<int>> &dist1,const vector<vector<int>> &dist2,const int &color)const;
     double calc_c1(const vector<vector<int>> &dist1,const vector<vector<int>> &dist2)const;
     double calc_c2(const vector<vector<int>> &dist1,const vector<vector<int>> &dist2)const;
+    uint64_t current_hash;
+    static std::vector<std::vector<uint64_t>> piece_keys;
+    static uint64_t turn_key;
 };

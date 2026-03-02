@@ -2,9 +2,10 @@
 #include <iostream>
 #include <cmath>
 #include <queue>
+#include <random>
 using std::vector;
 const int INF=1000000000;
-const double K=0.1;
+const double K=0.05;
 const double value_t1_1=0.14;
 const double value_t1_2=0.30;
 const double value_t1_3=0.80;
@@ -20,10 +21,19 @@ const double value_c2_3=0.05;
 const double value_m_1=0.20;
 const double value_m_2=0.05;
 const double value_m_3=0.0;
-const int state_1_end=17;
+const int state_1_end=25;
 const int state_2_end=40;
+std::vector<std::vector<uint64_t>> Board::piece_keys;
+uint64_t Board::turn_key;
+std::vector<double> Board::pow_2; 
 Board::Board():row(8),col(8),grid(row,vector<int>(col,0)),N(row,vector<int>(col,0)),rounds(0){
-    pow_initialize();
+    pow_initialize(); 
+    Board::initialize_zobrist_keys();
+}
+int piece_to_id(int piece_color) {
+    if (piece_color == 1) return 0;  // 黑
+    if (piece_color == -1) return 1; // 白
+    return 2;                      // 障碍
 }
 vector<vector<int>> Board::get_grid()const{
     return grid;
@@ -124,6 +134,15 @@ bool Board::can_reach(const Position &begin,const Position &end)const{
     return 1;
 }
 void Board::make_move(const Move &move,const int &color){
+    int from_sq = move.begin.x * col + move.begin.y;
+    int to_sq = move.end.x * col + move.end.y;
+    int obs_sq = move.obstacle.x * col + move.obstacle.y;
+    int color_id = piece_to_id(color);
+    int obs_id = piece_to_id(2);
+    current_hash ^= piece_keys[color_id][from_sq];
+    current_hash ^= piece_keys[color_id][to_sq];
+    current_hash ^= piece_keys[obs_id][obs_sq];
+    current_hash ^= turn_key;
     set_rounds(rounds+1);
     del(move.begin);
     add(move.end,color);
@@ -133,6 +152,15 @@ void Board::make_move(const Move &move,const int &color){
     N_update(move.obstacle);
 }
 void Board::undo_move(const Move &move,const int &color){
+    int from_sq = move.begin.x * col + move.begin.y;
+    int to_sq = move.end.x * col + move.end.y;
+    int obs_sq = move.obstacle.x * col + move.obstacle.y;
+    int color_id = piece_to_id(color);
+    int obs_id = piece_to_id(2);
+    current_hash ^= piece_keys[obs_id][obs_sq];
+    current_hash ^= piece_keys[color_id][to_sq];
+    current_hash ^= piece_keys[color_id][from_sq];
+    current_hash ^= turn_key;
     set_rounds(rounds-1);
     del(move.end);
     del(move.obstacle);
@@ -411,7 +439,37 @@ double Board::calc_board_score(const int &next_color,bool need_output)const{
     //std::cout<<"Score: "<<score<<std::endl;//test 
     return score;
 }
-void Board::N_update(const Position &pos){
+void Board::initialize_zobrist_keys(){
+    if (!piece_keys.empty()) return;
+    std::mt19937_64 gen(1337); 
+    std::uniform_int_distribution<uint64_t> distrib;
+    piece_keys.resize(3, std::vector<uint64_t>(64));
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 64; ++j) {
+            piece_keys[i][j] = distrib(gen);
+        }
+    }
+    turn_key = distrib(gen);
+    return;
+}
+
+uint64_t Board::get_hash() const{
+    return current_hash;
+}
+void Board::calculate_full_hash(){
+    current_hash = 0;
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            if (grid[i][j] != 0) {
+                int piece_idx = piece_to_id(grid[i][j]);
+                int square_idx = i * col + j;
+                current_hash ^= piece_keys[piece_idx][square_idx];
+            }
+        }
+    }
+}
+void Board::N_update(const Position &pos)
+{
     static vector<int> way_x={1,-1,0,0,1,-1,1,-1,0};
     static vector<int> way_y={0,0,1,-1,1,-1,-1,1,0};
     for(int way_id=0;way_id<=8;way_id++){

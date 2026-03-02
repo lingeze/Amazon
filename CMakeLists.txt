@@ -45,6 +45,9 @@ target_link_libraries(core_logic PUBLIC SFML::Graphics SFML::Window SFML::System
 add_executable(my_bot bot/bot.cpp)
 target_link_libraries(my_bot PRIVATE core_logic)
 
+add_executable(my_app app/game.cpp)
+target_link_libraries(my_app PRIVATE core_logic)
+
 add_executable(test test/test.cpp)
 target_link_libraries(test PRIVATE core_logic)
 
@@ -72,14 +75,5 @@ if (WIN32)
             COMMENT "Copying SFML DLLs to output directory"
         )
     endif()
-endif()
-set(SOURCE_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
-if(EXISTS ${SOURCE_ASSETS_DIR})
-    add_custom_command(
-        TARGET amazon_gui POST_BUILD
-        # ${CMAKE_COMMAND} -E copy_directory <源文件夹> <目标文件夹>
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_ASSETS_DIR} ${CMAKE_BINARY_DIR}/assets
-        COMMENT "Copying assets directory to build directory..."
-    )
 endif()
 message(STATUS "Configuring AmazonGame project with official SFML 3.0 targets.")

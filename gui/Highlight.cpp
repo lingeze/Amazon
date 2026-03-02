@@ -5,7 +5,7 @@ Highlight::Highlight(float square_size):square_size(square_size){
     float R=square_size*0.4f;
     highlight_select_pos.setRadius(R);
     highlight_select_pos.setOrigin({R,R});
-    highlight_select_pos.setFillColor(sf::Color(60, 179, 113, 180));
+    highlight_select_pos.setFillColor(sf::Color(60, 179, 113, 100));
     highlight_psb_move.setSize({square_size,square_size});
     highlight_psb_move.setFillColor(color1);
 }   
@@ -19,7 +19,6 @@ void Highlight::clear(){
 }
 void Highlight::draw(sf::RenderWindow &window){
     if(select_pos.x!=-1){
-        std::cout<<select_pos.x<<" "<<select_pos.y<<std::endl;
         float x=select_pos.y*square_size+square_size/2.0f;
         float y=select_pos.x*square_size+square_size/2.0f;
         highlight_select_pos.setPosition({x,y});

@@ -44,7 +44,19 @@ bool Filemanage::loadfile(Board &gameboard,int &human_color,int &current_player,
     file.close();
     return 1;
 }
-bool Filemanage::list_saves(){
+bool Filemanage::file_exists(const int &savenumber){
+    std::string filename="SAVE_"+std::to_string(savenumber);
+    std::string data_folder="../data/";
+    std::string full_path=data_folder+filename;
+    std::ifstream file(full_path);
+    if(file.is_open()){
+        file.close();
+        return true;
+    }
+    return false;
+}
+bool Filemanage::list_saves()
+{
     std::cout<<"已有的存档："<<std::endl;
     bool is_exist=0;
     for(int id=0;id<=9;id++){

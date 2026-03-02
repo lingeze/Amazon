@@ -1,7 +1,20 @@
 #pragma once
 #include <random>
 #include <chrono>
+#include <cstdint>
 #include "Board.h"
+const size_t TT_SIZE = 1 << 20;
+enum class EntryFlag {
+    EXACT,
+    LOWER_BOUND,
+    UPPER_BOUND
+};
+struct TTEntry {
+    uint64_t key = 0;
+    int depth = -1;
+    double score = 0.0;
+    EntryFlag flag;
+};
 class AIplayer{
     public:
         AIplayer(int Color);
@@ -24,4 +37,5 @@ class AIplayer{
         double alpha_beta_search(Board &now_board,const int &color,const int &dep,double alpha,double beta);
         Move minmax_strategy(const Board &gameboard,int color);
         bool is_reach_time_limit();
+        std::vector<TTEntry> transposition_table;
 };

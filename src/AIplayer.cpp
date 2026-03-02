@@ -7,8 +7,10 @@ constexpr int TIME_LIMIT=1000;
 AIplayer::AIplayer(int color):player_color(color),gen(std::random_device()()){
     history_table.resize(8*8*8*8*8*8,0);
     start_time=std::chrono::steady_clock::now();
+    transposition_table.resize(TT_SIZE);
 }
 Move AIplayer::get_move(Board now_board,int color){
+    //now_board.print_board();
     Move ret=minmax_strategy(now_board,color);
     return ret;
 }
@@ -22,15 +24,18 @@ Move AIplayer::rand_strategy(const Board &now_board)const{
 bool AIplayer::is_reach_time_limit(){
     auto now_time=std::chrono::steady_clock::now();
     auto elapsed_time=std::chrono::duration_cast<std::chrono::milliseconds>(now_time-start_time).count();
+    //std::cout<<"Now time"<<now_time<<" ms"<<std::endl;
     //std::cout<<"Elapsed time: "<<elapsed_time<<" ms"<<std::endl;
-    return elapsed_time>=(TIME_LIMIT-140);
+    return elapsed_time>=(TIME_LIMIT-150);
 }
 Move AIplayer::minmax_strategy(const Board &gameboard,int color){
     Board now_board=gameboard;
+    now_board.calculate_full_hash(); 
     search_cnt=0;
     Move best_move;
     Move current_best_move;
     int max_depth=0;
+    stop_search=0;
     vector<Move> psb_move=now_board.get_all_psb_move(color);
     double alpha=-1e9,beta=1e9;
     for(int depth=0;;depth++){
@@ -58,14 +63,14 @@ Move AIplayer::minmax_strategy(const Board &gameboard,int color){
         }
         if(stop_search)break;
         //test_output
-        std::cout<<"Depth "<<depth<<" completed. Current best move: ";
+        /*std::cout<<"Depth "<<depth<<" completed. Current best move: ";
         std::cout<<"alpha: "<<alpha<<", beta: "<<beta<<std::endl;
         current_best_move.printmove();
         now_board=gameboard;
         now_board.make_move(current_best_move,color);
         now_board.print_board();
         now_board.calc_board_score(-color,true);
-        now_board.undo_move(current_best_move,color);
+        now_board.undo_move(current_best_move,color);*/
         
     }
    /*------------------------greedy version------------------*/
@@ -84,11 +89,11 @@ Move AIplayer::minmax_strategy(const Board &gameboard,int color){
                 }
             }*/
       
-    std::cout<<"Max search depth: "<<max_depth<<std::endl;
-    std::cout<<"Total nodes searched: "<<search_cnt<<std::endl;
+    //std::cout<<"Max search depth: "<<max_depth<<std::endl;
+    //std::cout<<"Total nodes searched: "<<search_cnt<<std::endl;
     return best_move;
 }
-double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &dep,double alpha,double beta){
+double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &dep,double alpha,double beta){ 
     search_cnt++;
     if(stop_search){
         throw std::runtime_error("Time limit reached");
@@ -102,6 +107,25 @@ double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &
     if(dep==0){
         return color*now_board.calc_board_score(color,0);
     }
+    double original_alpha = alpha;
+    uint64_t current_hash = now_board.get_hash(); 
+    TTEntry* tt_entry = &transposition_table[current_hash & (TT_SIZE - 1)];
+    if (tt_entry->key == current_hash && tt_entry->depth >= dep) {
+        switch (tt_entry->flag) {
+            case EntryFlag::EXACT:
+                return tt_entry->score;
+            case EntryFlag::LOWER_BOUND:
+                alpha = std::max(alpha, tt_entry->score);
+                break;
+            case EntryFlag::UPPER_BOUND:
+                beta = std::min(beta, tt_entry->score);
+                break;
+        }
+        if (alpha >= beta) {
+            return tt_entry->score;
+        }
+    }
+
     double max_score=-1e9;
     vector<Move> psb_move=now_board.get_all_psb_move(color);
     if(psb_move.empty()){
@@ -135,7 +159,22 @@ double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &
         }
         if(alpha>=beta){
             history_table[move.get_hash()]+=dep*dep;
+            tt_entry->key = current_hash;
+            tt_entry->score = beta;
+            tt_entry->flag = EntryFlag::LOWER_BOUND;
+            tt_entry->depth = dep;
             return alpha;
+        }
+    }
+    if (!stop_search) {
+        tt_entry->key = current_hash;
+        tt_entry->depth = dep;
+        if (max_score <= original_alpha) {
+            tt_entry->flag = EntryFlag::UPPER_BOUND;
+            tt_entry->score = max_score;
+        } else {
+            tt_entry->flag = EntryFlag::EXACT;
+            tt_entry->score = max_score;
         }
     }
     return max_score;

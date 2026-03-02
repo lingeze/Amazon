@@ -4,6 +4,7 @@
 // --- Part 1: System Headers ---
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <queue>
@@ -12,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
+#include <algorithm>
 // --- Part 2: Class Definitions (in user-specified order) ---
 // --- From: position.h ---
 class Position{
@@ -53,27 +54,42 @@ class Board{
     void add(const Position &pos,const int &color);
     void del(const Position &pos);
     void initialize();
+    /*For AI*/
     vector<Position> get_start_position(int color)const;
     vector<Move> get_all_psb_move(int color)const;
     double calc_board_score(const int &next_color,bool need_output)const;
-    //private:
+    static void initialize_zobrist_keys();
+    uint64_t get_hash() const;
+    void calculate_full_hash();
+    /*For gui*/
+    void clear(){
+        for(int i=0;i<row;i++){
+            for(int j=0;j<col;j++){
+                del({i,j});
+            }
+        }
+    }
+    bool is_valid_start(Position pos,int color)const;
+    vector<Position> reach_positions(Position pos)const;
+    private:
     int row,col;
+    bool can_move(const Position &pos)const;
+    double calc_f(double alpha)const;
+    /*For AI*/
     int rounds;
     vector<vector<int>> N;
     void N_update(const Position &pos);
     void N_calculate(const Position &pos);
     vector<double> calc_alpha(const int &color)const;
-    double calc_f(double alpha)const;
-    double calc_m()const;
-    vector<double> pow_2;
+    static vector<double> pow_2;
     mutable vector<vector<int>> grid;
     char transform(int i,int j)const;
-    bool can_move(const Position &pos)const;
     double calc_pow(const int &num)const{
         if(num>pow_2.size())return 0; 
         return pow_2[num];
     }
-    void pow_initialize(){
+    static void pow_initialize(){
+        if(pow_2.size()>0)return;
         pow_2.resize(40,0);pow_2[0]=1;
         for(int i=1;i<39;i++){
             pow_2[i]=pow_2[i-1]/2;
@@ -87,8 +103,23 @@ class Board{
     double calc_t(const vector<vector<int>> &dist1,const vector<vector<int>> &dist2,const int &color)const;
     double calc_c1(const vector<vector<int>> &dist1,const vector<vector<int>> &dist2)const;
     double calc_c2(const vector<vector<int>> &dist1,const vector<vector<int>> &dist2)const;
+    uint64_t current_hash;
+    static std::vector<std::vector<uint64_t>> piece_keys;
+    static uint64_t turn_key;
 };
 // --- From: AIplayer.h ---
+const size_t TT_SIZE = 1 << 20;
+enum class EntryFlag {
+    EXACT,
+    LOWER_BOUND,
+    UPPER_BOUND
+};
+struct TTEntry {
+    uint64_t key = 0;
+    int depth = -1;
+    double score = 0.0;
+    EntryFlag flag;
+};
 class AIplayer{
     public:
         AIplayer(int Color);
@@ -111,6 +142,7 @@ class AIplayer{
         double alpha_beta_search(Board &now_board,const int &color,const int &dep,double alpha,double beta);
         Move minmax_strategy(const Board &gameboard,int color);
         bool is_reach_time_limit();
+        std::vector<TTEntry> transposition_table;
 };
 // --- From: Humanplayer.h ---
 class Humanplayer{
@@ -128,6 +160,7 @@ class Filemanage{
     static bool list_saves();
     static bool savefile(const Board &gameboard,const int &human_color,const int &current_player,const int &savenumber);
     static bool loadfile(Board &gameboard,int &human_color,int &current_player,const int &savenumber);
+    bool file_exists(const int &savenumber);
 };
 // --- Part 3: Implementations ---
 // --- From: AIplayer.cpp ---
@@ -135,8 +168,10 @@ constexpr int TIME_LIMIT=1000;
 AIplayer::AIplayer(int color):player_color(color),gen(std::random_device()()){
     history_table.resize(8*8*8*8*8*8,0);
     start_time=std::chrono::steady_clock::now();
+    transposition_table.resize(TT_SIZE);
 }
 Move AIplayer::get_move(Board now_board,int color){
+    //now_board.print_board();
     Move ret=minmax_strategy(now_board,color);
     return ret;
 }
@@ -150,15 +185,18 @@ Move AIplayer::rand_strategy(const Board &now_board)const{
 bool AIplayer::is_reach_time_limit(){
     auto now_time=std::chrono::steady_clock::now();
     auto elapsed_time=std::chrono::duration_cast<std::chrono::milliseconds>(now_time-start_time).count();
+    //std::cout<<"Now time"<<now_time<<" ms"<<std::endl;
     //std::cout<<"Elapsed time: "<<elapsed_time<<" ms"<<std::endl;
-    return elapsed_time>=(TIME_LIMIT-140);
+    return elapsed_time>=(TIME_LIMIT-150);
 }
 Move AIplayer::minmax_strategy(const Board &gameboard,int color){
     Board now_board=gameboard;
+    now_board.calculate_full_hash(); 
     search_cnt=0;
     Move best_move;
     Move current_best_move;
     int max_depth=0;
+    stop_search=0;
     vector<Move> psb_move=now_board.get_all_psb_move(color);
     double alpha=-1e9,beta=1e9;
     for(int depth=0;;depth++){
@@ -186,14 +224,14 @@ Move AIplayer::minmax_strategy(const Board &gameboard,int color){
         }
         if(stop_search)break;
         //test_output
-        std::cout<<"Depth "<<depth<<" completed. Current best move: ";
+        /*std::cout<<"Depth "<<depth<<" completed. Current best move: ";
         std::cout<<"alpha: "<<alpha<<", beta: "<<beta<<std::endl;
         current_best_move.printmove();
         now_board=gameboard;
         now_board.make_move(current_best_move,color);
         now_board.print_board();
         now_board.calc_board_score(-color,true);
-        now_board.undo_move(current_best_move,color);
+        now_board.undo_move(current_best_move,color);*/
         
     }
    /*------------------------greedy version------------------*/
@@ -212,11 +250,11 @@ Move AIplayer::minmax_strategy(const Board &gameboard,int color){
                 }
             }*/
       
-    std::cout<<"Max search depth: "<<max_depth<<std::endl;
-    std::cout<<"Total nodes searched: "<<search_cnt<<std::endl;
+    //std::cout<<"Max search depth: "<<max_depth<<std::endl;
+    //std::cout<<"Total nodes searched: "<<search_cnt<<std::endl;
     return best_move;
 }
-double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &dep,double alpha,double beta){
+double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &dep,double alpha,double beta){ 
     search_cnt++;
     if(stop_search){
         throw std::runtime_error("Time limit reached");
@@ -230,6 +268,25 @@ double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &
     if(dep==0){
         return color*now_board.calc_board_score(color,0);
     }
+    double original_alpha = alpha;
+    uint64_t current_hash = now_board.get_hash(); 
+    TTEntry* tt_entry = &transposition_table[current_hash & (TT_SIZE - 1)];
+    if (tt_entry->key == current_hash && tt_entry->depth >= dep) {
+        switch (tt_entry->flag) {
+            case EntryFlag::EXACT:
+                return tt_entry->score;
+            case EntryFlag::LOWER_BOUND:
+                alpha = std::max(alpha, tt_entry->score);
+                break;
+            case EntryFlag::UPPER_BOUND:
+                beta = std::min(beta, tt_entry->score);
+                break;
+        }
+        if (alpha >= beta) {
+            return tt_entry->score;
+        }
+    }
+
     double max_score=-1e9;
     vector<Move> psb_move=now_board.get_all_psb_move(color);
     if(psb_move.empty()){
@@ -263,7 +320,22 @@ double AIplayer::alpha_beta_search(Board &now_board,const int &color,const int &
         }
         if(alpha>=beta){
             history_table[move.get_hash()]+=dep*dep;
+            tt_entry->key = current_hash;
+            tt_entry->score = beta;
+            tt_entry->flag = EntryFlag::LOWER_BOUND;
+            tt_entry->depth = dep;
             return alpha;
+        }
+    }
+    if (!stop_search) {
+        tt_entry->key = current_hash;
+        tt_entry->depth = dep;
+        if (max_score <= original_alpha) {
+            tt_entry->flag = EntryFlag::UPPER_BOUND;
+            tt_entry->score = max_score;
+        } else {
+            tt_entry->flag = EntryFlag::EXACT;
+            tt_entry->score = max_score;
         }
     }
     return max_score;
@@ -316,7 +388,7 @@ Humanplayer::~Humanplayer(){
 // --- From: board.cpp ---
 using std::vector;
 const int INF=1000000000;
-const double K=0.1;
+const double K=0.05;
 const double value_t1_1=0.14;
 const double value_t1_2=0.30;
 const double value_t1_3=0.80;
@@ -332,10 +404,19 @@ const double value_c2_3=0.05;
 const double value_m_1=0.20;
 const double value_m_2=0.05;
 const double value_m_3=0.0;
-const int state_1_end=17;
+const int state_1_end=25;
 const int state_2_end=40;
+std::vector<std::vector<uint64_t>> Board::piece_keys;
+uint64_t Board::turn_key;
+std::vector<double> Board::pow_2; 
 Board::Board():row(8),col(8),grid(row,vector<int>(col,0)),N(row,vector<int>(col,0)),rounds(0){
-    pow_initialize();
+    pow_initialize(); 
+    Board::initialize_zobrist_keys();
+}
+int piece_to_id(int piece_color) {
+    if (piece_color == 1) return 0;  // 黑
+    if (piece_color == -1) return 1; // 白
+    return 2;                      // 障碍
 }
 vector<vector<int>> Board::get_grid()const{
     return grid;
@@ -407,20 +488,44 @@ bool Board::can_reach(const Position &begin,const Position &end)const{
         }
     }
     else if(minx==maxx){
-        for(int i=miny;i<=maxy;i++){
-            //std::cout<<bgx<<" "<<i<<endl;
-            if(grid[minx][i]){/*std::cout<<bgx<<" "<<i<<std::endl;*/return 0;}
+        if(miny==begin.y){
+            for(int i=miny+1;i<=maxy;i++){
+                //std::cout<<bgx<<" "<<i<<endl;
+                if(grid[minx][i]){/*std::cout<<bgx<<" "<<i<<std::endl;*/return 0;}
+            }
+        }
+        else {
+            for(int i=miny;i<=maxy-1;i++){
+                //std::cout<<bgx<<" "<<i<<endl;
+                if(grid[minx][i]){/*std::cout<<bgx<<" "<<i<<std::endl;*/return 0;}
+            }
         }
     }
     else if(miny==maxy){
-        for(int i=minx;i<=maxx;i++){
-            if(grid[i][miny])return 0;
+        if(minx==begin.x){
+            for(int i=minx+1;i<=maxx;i++){
+                if(grid[i][miny])return 0;
+            }
         }
+        else {
+            for(int i=minx;i<=maxx-1;i++){
+                if(grid[i][miny])return 0;
+            }
+        }        
     }
     else return 0;
     return 1;
 }
 void Board::make_move(const Move &move,const int &color){
+    int from_sq = move.begin.x * col + move.begin.y;
+    int to_sq = move.end.x * col + move.end.y;
+    int obs_sq = move.obstacle.x * col + move.obstacle.y;
+    int color_id = piece_to_id(color);
+    int obs_id = piece_to_id(2);
+    current_hash ^= piece_keys[color_id][from_sq];
+    current_hash ^= piece_keys[color_id][to_sq];
+    current_hash ^= piece_keys[obs_id][obs_sq];
+    current_hash ^= turn_key;
     set_rounds(rounds+1);
     del(move.begin);
     add(move.end,color);
@@ -430,6 +535,15 @@ void Board::make_move(const Move &move,const int &color){
     N_update(move.obstacle);
 }
 void Board::undo_move(const Move &move,const int &color){
+    int from_sq = move.begin.x * col + move.begin.y;
+    int to_sq = move.end.x * col + move.end.y;
+    int obs_sq = move.obstacle.x * col + move.obstacle.y;
+    int color_id = piece_to_id(color);
+    int obs_id = piece_to_id(2);
+    current_hash ^= piece_keys[obs_id][obs_sq];
+    current_hash ^= piece_keys[color_id][to_sq];
+    current_hash ^= piece_keys[color_id][from_sq];
+    current_hash ^= turn_key;
     set_rounds(rounds-1);
     del(move.end);
     del(move.obstacle);
@@ -708,7 +822,37 @@ double Board::calc_board_score(const int &next_color,bool need_output)const{
     //std::cout<<"Score: "<<score<<std::endl;//test 
     return score;
 }
-void Board::N_update(const Position &pos){
+void Board::initialize_zobrist_keys(){
+    if (!piece_keys.empty()) return;
+    std::mt19937_64 gen(1337); 
+    std::uniform_int_distribution<uint64_t> distrib;
+    piece_keys.resize(3, std::vector<uint64_t>(64));
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 64; ++j) {
+            piece_keys[i][j] = distrib(gen);
+        }
+    }
+    turn_key = distrib(gen);
+    return;
+}
+
+uint64_t Board::get_hash() const{
+    return current_hash;
+}
+void Board::calculate_full_hash(){
+    current_hash = 0;
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < col; ++j) {
+            if (grid[i][j] != 0) {
+                int piece_idx = piece_to_id(grid[i][j]);
+                int square_idx = i * col + j;
+                current_hash ^= piece_keys[piece_idx][square_idx];
+            }
+        }
+    }
+}
+void Board::N_update(const Position &pos)
+{
     static vector<int> way_x={1,-1,0,0,1,-1,1,-1,0};
     static vector<int> way_y={0,0,1,-1,1,-1,-1,1,0};
     for(int way_id=0;way_id<=8;way_id++){
@@ -786,6 +930,24 @@ double Board::calc_f(double alpha)const{
     return g_alpha/ADJUCT_MULTIPLIER;
 }
 
+bool Board::is_valid_start(Position pos,int color) const{
+    if(!is_in_board(pos))return 0;
+    return grid[pos.x][pos.y]==color;
+}
+
+vector<Position> Board::reach_positions(Position pos) const{
+    vector<Position> ret;
+    static vector<int> way_x={1,-1,0,0,1,-1,1,-1};
+    static vector<int> way_y={0,0,1,-1,1,-1,-1,1};
+    for(int id=0;id<=7;id++){
+        for(int nx=pos.x+way_x[id],ny=pos.y+way_y[id];;nx+=way_x[id],ny+=way_y[id]){
+            if(!is_in_board({nx,ny}))break;
+            if(grid[nx][ny])break;
+            ret.push_back({nx,ny});
+        }
+    }
+    return ret;
+}
 
 // --- From: filemanage.cpp ---
 bool Filemanage::savefile(const Board &gameboard,const int &human_color,const int &current_player,const int &savenumber){
@@ -830,7 +992,19 @@ bool Filemanage::loadfile(Board &gameboard,int &human_color,int &current_player,
     file.close();
     return 1;
 }
-bool Filemanage::list_saves(){
+bool Filemanage::file_exists(const int &savenumber){
+    std::string filename="SAVE_"+std::to_string(savenumber);
+    std::string data_folder="../data/";
+    std::string full_path=data_folder+filename;
+    std::ifstream file(full_path);
+    if(file.is_open()){
+        file.close();
+        return true;
+    }
+    return false;
+}
+bool Filemanage::list_saves()
+{
     std::cout<<"已有的存档："<<std::endl;
     bool is_exist=0;
     for(int id=0;id<=9;id++){
