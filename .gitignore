@@ -1,6 +1,5 @@
 
 output/
-build/
 
 *.exe
 *.out

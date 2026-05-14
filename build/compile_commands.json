@@ -1,0 +1,86 @@
+[
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\core_logic.dir\\src\\AIplayer.cpp.obj /FdCMakeFiles\\core_logic.dir\\core_logic.pdb /FS -c C:\\code\\Amazon\\src\\AIplayer.cpp",
+  "file": "C:/code/Amazon/src/AIplayer.cpp",
+  "output": "CMakeFiles/core_logic.dir/src/AIplayer.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\core_logic.dir\\src\\Humanplayer.cpp.obj /FdCMakeFiles\\core_logic.dir\\core_logic.pdb /FS -c C:\\code\\Amazon\\src\\Humanplayer.cpp",
+  "file": "C:/code/Amazon/src/Humanplayer.cpp",
+  "output": "CMakeFiles/core_logic.dir/src/Humanplayer.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\core_logic.dir\\src\\board.cpp.obj /FdCMakeFiles\\core_logic.dir\\core_logic.pdb /FS -c C:\\code\\Amazon\\src\\board.cpp",
+  "file": "C:/code/Amazon/src/board.cpp",
+  "output": "CMakeFiles/core_logic.dir/src/board.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\core_logic.dir\\src\\filemanage.cpp.obj /FdCMakeFiles\\core_logic.dir\\core_logic.pdb /FS -c C:\\code\\Amazon\\src\\filemanage.cpp",
+  "file": "C:/code/Amazon/src/filemanage.cpp",
+  "output": "CMakeFiles/core_logic.dir/src/filemanage.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\core_logic.dir\\src\\move.cpp.obj /FdCMakeFiles\\core_logic.dir\\core_logic.pdb /FS -c C:\\code\\Amazon\\src\\move.cpp",
+  "file": "C:/code/Amazon/src/move.cpp",
+  "output": "CMakeFiles/core_logic.dir/src/move.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\core_logic.dir\\src\\position.cpp.obj /FdCMakeFiles\\core_logic.dir\\core_logic.pdb /FS -c C:\\code\\Amazon\\src\\position.cpp",
+  "file": "C:/code/Amazon/src/position.cpp",
+  "output": "CMakeFiles/core_logic.dir/src/position.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\my_bot.dir\\bot\\bot.cpp.obj /FdCMakeFiles\\my_bot.dir/ /FS -c C:\\code\\Amazon\\bot\\bot.cpp",
+  "file": "C:/code/Amazon/bot/bot.cpp",
+  "output": "CMakeFiles/my_bot.dir/bot/bot.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\my_app.dir\\app\\game.cpp.obj /FdCMakeFiles\\my_app.dir/ /FS -c C:\\code\\Amazon\\app\\game.cpp",
+  "file": "C:/code/Amazon/app/game.cpp",
+  "output": "CMakeFiles/my_app.dir/app/game.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\test.dir\\test\\test.cpp.obj /FdCMakeFiles\\test.dir/ /FS -c C:\\code\\Amazon\\test\\test.cpp",
+  "file": "C:/code/Amazon/test/test.cpp",
+  "output": "CMakeFiles/test.dir/test/test.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\gui -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\amazon_gui.dir\\gui\\gui.cpp.obj /FdCMakeFiles\\amazon_gui.dir/ /FS -c C:\\code\\Amazon\\gui\\gui.cpp",
+  "file": "C:/code/Amazon/gui/gui.cpp",
+  "output": "CMakeFiles/amazon_gui.dir/gui/gui.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\gui -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\amazon_gui.dir\\gui\\button.cpp.obj /FdCMakeFiles\\amazon_gui.dir/ /FS -c C:\\code\\Amazon\\gui\\button.cpp",
+  "file": "C:/code/Amazon/gui/button.cpp",
+  "output": "CMakeFiles/amazon_gui.dir/gui/button.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\gui -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\amazon_gui.dir\\gui\\BoardDrawer.cpp.obj /FdCMakeFiles\\amazon_gui.dir/ /FS -c C:\\code\\Amazon\\gui\\BoardDrawer.cpp",
+  "file": "C:/code/Amazon/gui/BoardDrawer.cpp",
+  "output": "CMakeFiles/amazon_gui.dir/gui/BoardDrawer.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\gui -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\amazon_gui.dir\\gui\\PieceDrawer.cpp.obj /FdCMakeFiles\\amazon_gui.dir/ /FS -c C:\\code\\Amazon\\gui\\PieceDrawer.cpp",
+  "file": "C:/code/Amazon/gui/PieceDrawer.cpp",
+  "output": "CMakeFiles/amazon_gui.dir/gui/PieceDrawer.cpp.obj"
+},
+{
+  "directory": "C:/code/Amazon/build",
+  "command": "C:\\PROGRA~2\\MICROS~3\\18\\BUILDT~1\\VC\\Tools\\MSVC\\1450~1.357\\bin\\Hostx64\\x64\\cl.exe  /nologo /TP  -IC:\\code\\Amazon\\gui -IC:\\code\\Amazon\\src -external:IC:\\code\\Amazon\\SFML\\include -external:W0 /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 -std:c++17 /utf-8 /FoCMakeFiles\\amazon_gui.dir\\gui\\Highlight.cpp.obj /FdCMakeFiles\\amazon_gui.dir/ /FS -c C:\\code\\Amazon\\gui\\Highlight.cpp",
+  "file": "C:/code/Amazon/gui/Highlight.cpp",
+  "output": "CMakeFiles/amazon_gui.dir/gui/Highlight.cpp.obj"
+}
+]

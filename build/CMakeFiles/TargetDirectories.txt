@@ -1,0 +1,7 @@
+C:/code/Amazon/build/CMakeFiles/core_logic.dir
+C:/code/Amazon/build/CMakeFiles/my_bot.dir
+C:/code/Amazon/build/CMakeFiles/my_app.dir
+C:/code/Amazon/build/CMakeFiles/test.dir
+C:/code/Amazon/build/CMakeFiles/amazon_gui.dir
+C:/code/Amazon/build/CMakeFiles/edit_cache.dir
+C:/code/Amazon/build/CMakeFiles/rebuild_cache.dir
